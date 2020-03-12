@@ -33,7 +33,7 @@ You may want to start by looking at the RosterBuilder class which is intended to
 This app is designed to be from the command line using:
 
 ```
-node index.js
+npm run start
 ```
 
 Doing so with no params should print out usage information.
