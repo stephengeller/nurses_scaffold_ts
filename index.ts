@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as yargs from 'yargs'
-import {RosterBuilder} from './src/rostering/RosterBuilder'
+import {RosterBuilder, Shift} from './src/rostering/RosterBuilder'
 import {RosterFormatter} from './src/rostering/RosterFormatter'
 
 const validateArgs = (args: any) => {
@@ -37,14 +37,14 @@ const validateArgs = (args: any) => {
 
 // Just an example. Tackle this however you like.
 const getRosteredNurses = (args: any) => {
-  RosterBuilder.build({
+  return RosterBuilder.build({
     filename: args['filename'],
     startDate: args['start-date'],
     endDate: args['end-date']
   })
 }
 
-const outputFormattedRoster = (roster: any) =>
+const outputFormattedRoster = (roster: Shift[]) =>
   RosterFormatter.output(console.log, roster)
 
 yargs

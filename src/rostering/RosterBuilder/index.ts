@@ -1,16 +1,34 @@
-import csv from 'async-csv'
 import * as fs from 'fs'
 
-const loadNurses = async (filename: string) => {
-  const contents = fs.readFileSync(filename)
-  const [header, ...rows] = await csv.parse(contents.toString())
-
-  return rows
+export interface Nurse {
+  uid: string;
+  name: string;
 }
 
-const build = async ({filename, startDate, endDate}) => {
-  const nurses = await loadNurses(filename)
+export enum ShiftType { 
+  Morning = 'morning', 
+  Evening = 'evening', 
+  Night = 'night'
+}
+export interface Shift {
+  shiftType: ShiftType;
+  date: Date;
+  nurses: Nurse[]
+}
 
+interface BuildArgs {
+  filename: string;
+  startDate: string;
+  endDate: string;
+}
+
+const loadNurses = (filename: string): Nurse[] => {
+  const contents = fs.readFileSync(filename, 'utf8')
+  return JSON.parse(contents)
+}
+
+const build = ({filename, startDate, endDate}: BuildArgs): Shift[] => {
+  const nurses = loadNurses(filename)
   throw 'RosterBuilder#build Not Implemented'
 }
 

@@ -10,7 +10,6 @@
   "author": "Your Name Here",
   "license": "UNLICENCED",
   "dependencies": {
-    "async-csv": "^2.1.3",
     "node": "^13.9.0",
     "regex": "^0.1.1",
     "yargs": "^15.1.0"

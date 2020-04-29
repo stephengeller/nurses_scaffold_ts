@@ -1,11 +1,12 @@
 import {RosterFormatter} from '../index'
+import { ShiftType } from '../../RosterBuilder'
 
 describe('Pretty Printing', () => {
   it('Writes the shift, then the nurses assigned to that shift', () => {
     // Could also be an array of typed objects using ES6 Getters too...
     const roster = [
       {
-        shiftType: 'morning',
+        shiftType: ShiftType.Morning,
         date: new Date('1972-01-10'),
         nurses: [
           {
@@ -19,7 +20,7 @@ describe('Pretty Printing', () => {
         ]
       },
       {
-        shiftType: 'evening',
+        shiftType: ShiftType.Evening,
         date: new Date('1993-09-21'),
         nurses: [
           {
