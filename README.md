@@ -1,20 +1,16 @@
 # Nurse Rostering
 
-## Challenge
+You just started work for a startup that sells medical rostering software. They’ve just landed a new client, a major hospital, and everyone’s excited! However, the HR policies at the hospital are too complex for the software to handle.
 
-In a hospital environment, nurses work a rotating shift system. There are three work shifts per day; a morning shift, an evening shift and a night shift. Each day, all three shift needs to be filled.
+At the hospital nurses work a rotating shift system. There are three work shifts per day; a morning shift, an evening shift and a night shift. Each day, all three shifts need to be filled.
 
-You have been tasked with developing a rostering system which can calculate and output the nursing roster for any specified month.
+Your task is to develop a rostering system that implements the following policies:
 
-A list of rosterable nurses has been provided in the file sample_data/nurses.csv.
+Five nurses need to be on staff for each shift.
+Nurses must not be expected to work more than one shift per day.
+The rostering system should calculate and output the nursing roster for any time period (specified by a start and end date).
 
-## Considerations
-
-- 5 nurses need to be on staff for each shift.
-- Nurses must not be expected to work more than one shift per day.
-- To maintain a healthy work/life balance, no nurse can be asked to work for more than 5 days in a row.
-- Similarly, no nurse can be expected to work more than five night shifts per month.
-- Days off must occur in groups of two or more.
+A list of rosterable nurses has been provided in the file spec/sample_data/nurses.json.
 
 ## Scaffold Code
 
