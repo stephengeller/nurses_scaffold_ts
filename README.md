@@ -6,8 +6,9 @@ At the hospital nurses work a rotating shift system. There are three work shifts
 
 Your task is to develop a rostering system that implements the following policies:
 
-Five nurses need to be on staff for each shift.
-Nurses must not be expected to work more than one shift per day.
+- Five nurses need to be on staff for each shift.
+- Nurses must not be expected to work more than one shift per day.
+
 The rostering system should calculate and output the nursing roster for any time period (specified by a start and end date).
 
 A list of rosterable nurses has been provided in the file spec/sample_data/nurses.json.
