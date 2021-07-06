@@ -83,9 +83,12 @@ export class RosterBuilder {
     const daysAsArray: number[] = Array.from(Array(days).keys())
 
     const start = moment(this.startDate)
-    const arrayOfShifts: Shift[][] = daysAsArray.map((n) => {
+    const arrayOfShifts: Shift[][] = daysAsArray.map(() => {
       this.resetAvailableNurses()
-      return this.createDay(start.add(n, 'days').toDate())
+      const day = this.createDay(start.toDate())
+      // `start` is stateful, so we need to add one day to the counter after we create the day
+      start.add(1, 'days').toDate()
+      return day
     })
 
     return flatten(arrayOfShifts)
