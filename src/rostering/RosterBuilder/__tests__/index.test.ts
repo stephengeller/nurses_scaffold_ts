@@ -18,7 +18,7 @@ const testNurses = (count: number, startingId?: number): Nurse[] =>
 const rosterBuilderForTesting = (args: Partial<RosterBuilderArgs>) =>
   new RosterBuilder({
     startDate: new Date('2001-01-01'),
-    endDate: new Date('2001-01-02'),
+    endDate: new Date('2001-01-01'),
     nurses: testNurses(100),
     ...args
   })
@@ -142,7 +142,7 @@ describe('RosterBuilder', () => {
       beforeEach(() => {
         rosterBuilder = rosterBuilderForTesting({
           startDate: new Date('2001-01-01'),
-          endDate: new Date('2001-01-02')
+          endDate: new Date('2001-01-01')
         })
       })
 
@@ -176,7 +176,7 @@ describe('RosterBuilder', () => {
       it('should produce 3 different types of shift per day', () => {
         rosterBuilder = rosterBuilderForTesting({
           startDate: new Date('2001-01-01'),
-          endDate: new Date('2001-01-03') // 2 days
+          endDate: new Date('2001-01-02') // 2 days
         })
 
         const roster = rosterBuilder.build()
@@ -206,7 +206,7 @@ describe('RosterBuilder', () => {
         rosterBuilder = rosterBuilderForTesting({
           nurses: testNurses(15), // Each nurse should work once a day, since 3 shifts * 5 nurses per shift
           startDate: new Date('2001-01-01'),
-          endDate: new Date('2001-01-03')
+          endDate: new Date('2001-01-02')
         })
 
         const roster = rosterBuilder.build()
@@ -254,7 +254,7 @@ describe('RosterBuilder', () => {
           // before rolling over to the first ones
           nurses: testNurses(17),
           startDate: new Date('2001-01-01'),
-          endDate: new Date('2001-01-03')
+          endDate: new Date('2001-01-02')
         })
 
         const roster = rosterBuilder.build()
