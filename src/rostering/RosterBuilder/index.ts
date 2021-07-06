@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import { differenceInDays, flatten } from "../../utils/utils";
 import moment = require("moment");
 
 export interface Nurse {
@@ -14,8 +15,8 @@ export enum ShiftType {
 }
 interface BuildArgs {
   filename?: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
 }
 
 export interface Shift {
@@ -31,14 +32,12 @@ export interface RosterBuilderArgs extends BuildArgs {
 export class RosterBuilder {
   private _nurses: Nurse[];
   private _assignedNurses: Nurse[];
-  private readonly startDate: string;
-  private readonly endDate: string;
-  private filename: string | undefined;
+  private readonly startDate: Date;
+  private readonly endDate: Date;
 
-  constructor({ filename, startDate, endDate, nurses }: RosterBuilderArgs) {
-    this._nurses = nurses || RosterBuilder.loadNurses(filename);
+  constructor({ startDate, endDate, nurses }: RosterBuilderArgs) {
+    this._nurses = nurses;
     this._assignedNurses = [];
-    this.filename = filename;
     this.startDate = startDate;
     this.endDate = endDate;
   }
@@ -77,20 +76,20 @@ export class RosterBuilder {
   };
 
   build = (): Shift[] => {
-    const start = moment(this.startDate, "YYYY-MM-DD");
-    const end = moment(this.endDate, "YYYY-MM-DD");
-    const days = end.days() - start.days(); // add `start.days() +1` if inclusive of endDate
-    const arrayOfDays: number[] = Array.from(Array(days).keys());
+    const days = differenceInDays(this.startDate, this.endDate);
+    const daysAsArray: number[] = Array.from(Array(days).keys());
 
-    const arrayOfShifts: Shift[][] = arrayOfDays.map((n) => {
-      this._nurses = this._nurses.concat(this._assignedNurses);
-      this._assignedNurses = [];
+    const start = moment(this.startDate);
 
+    const arrayOfShifts: Shift[][] = daysAsArray.map((n) => {
+      this.resetAvailableNurses();
       return this.createDay(start.add(n, "days").toDate());
     });
     return flatten(arrayOfShifts);
   };
-}
 
-export const flatten = (arr: any[][]): any[] =>
-  arr.reduce((accumulator, value) => accumulator.concat(value), []);
+  private resetAvailableNurses() {
+    this._nurses = this._nurses.concat(this._assignedNurses);
+    this._assignedNurses = [];
+  }
+}

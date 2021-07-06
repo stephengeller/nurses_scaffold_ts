@@ -1,11 +1,11 @@
 import {
-  flatten,
   Nurse,
   RosterBuilder,
   RosterBuilderArgs,
   Shift,
   ShiftType,
 } from "../index";
+import { differenceInDays } from "../../../utils/utils";
 
 const testNurse = (uid: number): Nurse => ({
   uid: uid.toString(),
@@ -17,8 +17,8 @@ const testNurses = (count: number): Nurse[] =>
 
 const rosterBuilderForTesting = (args: Partial<RosterBuilderArgs>) =>
   new RosterBuilder({
-    startDate: "2001-01-01",
-    endDate: "2001-01-02",
+    startDate: new Date("2001-01-01"),
+    endDate: new Date("2001-01-02"),
     nurses: testNurses(100),
     ...args,
   });
@@ -166,8 +166,8 @@ describe("RosterBuilder", function () {
     describe("for one day", function () {
       beforeEach(() => {
         rosterBuilder = rosterBuilderForTesting({
-          startDate: "2001-01-01",
-          endDate: "2001-01-02",
+          startDate: new Date("2001-01-01"),
+          endDate: new Date("2001-01-02"),
         });
       });
 
@@ -200,8 +200,8 @@ describe("RosterBuilder", function () {
     describe("for multiple days", function () {
       it("should produce 3 different types of shift per day", function () {
         rosterBuilder = rosterBuilderForTesting({
-          startDate: "2001-01-01",
-          endDate: "2001-01-03", // 2 days
+          startDate: new Date("2001-01-01"),
+          endDate: new Date("2001-01-03"), // 2 days
         });
 
         const roster = rosterBuilder.build();
@@ -230,8 +230,8 @@ describe("RosterBuilder", function () {
       it("can have the same nurses on shifts over multiple days", function () {
         rosterBuilder = rosterBuilderForTesting({
           nurses: testNurses(15), // Each nurse should work once a day, since 3 shifts * 5 nurses per shift
-          startDate: "2001-01-01",
-          endDate: "2001-01-03",
+          startDate: new Date("2001-01-01"),
+          endDate: new Date("2001-01-03"),
         });
 
         const roster = rosterBuilder.build();
@@ -308,13 +308,13 @@ describe("RosterBuilder", function () {
         expect(roster).toEqual(expected);
       });
 
-      it("", function () {
+      it("should persist nurse ordering over multiple days", function () {
         rosterBuilder = rosterBuilderForTesting({
           // This is more than the 3 shifts * 5 people, so the roster should
           // use the remaining nurses (16 and 17) before rolling over to the first ones
           nurses: testNurses(17),
-          startDate: "2001-01-01",
-          endDate: "2001-01-03",
+          startDate: new Date("2001-01-01"),
+          endDate: new Date("2001-01-03"),
         });
 
         const roster = rosterBuilder.build();
@@ -359,7 +359,7 @@ describe("RosterBuilder", function () {
             nurses: [
               testNurse(15),
               testNurse(16),
-              testNurse(0),
+              testNurse(0), // Resets to the first user here, having reached the end of the nurse list
               testNurse(1),
               testNurse(2),
             ],
@@ -390,13 +390,20 @@ describe("RosterBuilder", function () {
 
         expect(roster).toEqual(expected);
       });
-    });
-  });
-});
 
-describe("flatten", function () {
-  it("should flatten an array of arrays into one", function () {
-    const arrayOfArrays = [[1], [2], [3]];
-    expect(flatten(arrayOfArrays)).toEqual([1, 2, 3]);
+      it("should generate the appropriate number of shifts over longer periods", function () {
+        const startDate = new Date("2001-01-01");
+        const endDate = new Date("2001-03-01");
+
+        rosterBuilder = rosterBuilderForTesting({
+          nurses: testNurses(100),
+          startDate,
+          endDate,
+        });
+
+        const roster = rosterBuilder.build();
+        expect(roster).toHaveLength(differenceInDays(startDate, endDate) * 3);
+      });
+    });
   });
 });

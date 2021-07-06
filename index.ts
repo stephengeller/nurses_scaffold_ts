@@ -38,8 +38,8 @@ const validateArgs = (args: any) => {
 // Just an example. Tackle this however you like.
 const getRosteredNurses = (args: any) => {
   const rosterBuilder = new RosterBuilder({
-    startDate: args["start-date"],
-    endDate: args["end-date"],
+    startDate: new Date(args["start-date"]),
+    endDate: new Date(args["end-date"]),
     nurses: RosterBuilder.loadNurses(args["filename"]),
   });
   return rosterBuilder.build();
