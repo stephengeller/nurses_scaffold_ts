@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+yarn start --start-date=2020-01-01 --end-date=2020-06-01 --filename="${DIR}/../sample_data/nurses.json"

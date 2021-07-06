@@ -1,19 +1,19 @@
-import * as fs from 'fs'
+import * as fs from "fs";
 
 export interface Nurse {
   uid: string;
   name: string;
 }
 
-export enum ShiftType { 
-  Morning = 'morning', 
-  Evening = 'evening', 
-  Night = 'night'
+export enum ShiftType {
+  Morning = "morning",
+  Evening = "evening",
+  Night = "night",
 }
 export interface Shift {
   shiftType: ShiftType;
   date: Date;
-  nurses: Nurse[]
+  nurses: Nurse[];
 }
 
 interface BuildArgs {
@@ -23,15 +23,16 @@ interface BuildArgs {
 }
 
 const loadNurses = (filename: string): Nurse[] => {
-  const contents = fs.readFileSync(filename, 'utf8')
-  return JSON.parse(contents)
-}
+  const contents = fs.readFileSync(filename, "utf8");
+  return JSON.parse(contents);
+};
 
-const build = ({filename, startDate, endDate}: BuildArgs): Shift[] => {
-  const nurses = loadNurses(filename)
-  throw 'RosterBuilder#build Not Implemented'
-}
+const build = ({ filename, startDate, endDate }: BuildArgs): Shift[] => {
+  const nurses = loadNurses(filename);
+  console.log(nurses, startDate, endDate);
+  throw "RosterBuilder#build Not Implemented";
+};
 
 export const RosterBuilder = {
-  build
-}
+  build,
+};
