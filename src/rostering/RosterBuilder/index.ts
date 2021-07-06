@@ -13,11 +13,6 @@ export enum ShiftType {
   Evening = 'evening',
   Night = 'night'
 }
-interface BuildArgs {
-  filename?: string
-  startDate: Date
-  endDate: Date
-}
 
 export interface Shift {
   shiftType: ShiftType
@@ -25,8 +20,10 @@ export interface Shift {
   date: Date
 }
 
-export interface RosterBuilderArgs extends BuildArgs {
+export interface RosterBuilderArgs {
   nurses?: Nurse[]
+  startDate: Date
+  endDate: Date
 }
 
 export class RosterBuilder {
