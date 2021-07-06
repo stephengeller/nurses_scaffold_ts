@@ -6,6 +6,7 @@ export interface Nurse {
   name: string;
 }
 
+// TODO: This implementation is based on the ordering of these shifts. Do we need to be more explicit in the ordering?
 export enum ShiftType {
   Morning = "morning",
   Evening = "evening",
@@ -29,12 +30,14 @@ export interface RosterBuilderArgs extends BuildArgs {
 
 export class RosterBuilder {
   private _nurses: Nurse[];
-  private startDate: string;
-  private endDate: string;
+  private _assignedNurses: Nurse[];
+  private readonly startDate: string;
+  private readonly endDate: string;
   private filename: string | undefined;
 
   constructor({ filename, startDate, endDate, nurses }: RosterBuilderArgs) {
     this._nurses = nurses || RosterBuilder.loadNurses(filename);
+    this._assignedNurses = [];
     this.filename = filename;
     this.startDate = startDate;
     this.endDate = endDate;
@@ -42,6 +45,9 @@ export class RosterBuilder {
 
   get nurses(): Nurse[] {
     return this._nurses;
+  }
+  get assignedNurses(): Nurse[] {
+    return this._assignedNurses;
   }
 
   createShift(shiftType: ShiftType): {
@@ -53,6 +59,7 @@ export class RosterBuilder {
       throw `Not enough nurses to fill shift (${nurses.length} nurses available)`;
     }
 
+    this._assignedNurses = this._assignedNurses.concat(nurses);
     this._nurses = this.nurses.slice(5, this.nurses.length);
     return { shiftType, nurses };
   }
@@ -72,12 +79,15 @@ export class RosterBuilder {
   build = (): Shift[] => {
     const start = moment(this.startDate, "YYYY-MM-DD");
     const end = moment(this.endDate, "YYYY-MM-DD");
-    const days = end.days() - start.days(); // remove +1 if not inclusive of endDate
+    const days = end.days() - start.days(); // add `start.days() +1` if inclusive of endDate
     const arrayOfDays: number[] = Array.from(Array(days).keys());
 
-    const arrayOfShifts: Shift[][] = arrayOfDays.map((n) =>
-      this.createDay(start.add(n, "days").toDate())
-    );
+    const arrayOfShifts: Shift[][] = arrayOfDays.map((n) => {
+      this._nurses = this._nurses.concat(this._assignedNurses);
+      this._assignedNurses = [];
+
+      return this.createDay(start.add(n, "days").toDate());
+    });
     return flatten(arrayOfShifts);
   };
 }
