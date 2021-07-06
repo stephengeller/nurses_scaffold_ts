@@ -1,4 +1,4 @@
-import { Shift } from "../RosterBuilder";
+import { Shift, ShiftType } from "../RosterBuilder";
 
 const nursesForShift = ({ nurses }) =>
   nurses.map((nurse) => nurse.name).join(", ");
@@ -6,8 +6,17 @@ const nursesForShift = ({ nurses }) =>
 const shiftLine = (shift: Shift) => {
   const { date, shiftType } = shift;
   const nurses = nursesForShift(shift);
+  const longestShiftType = Object.values(ShiftType).reduce(function (a, b) {
+    return a.length > b.length ? a : b;
+  });
 
-  return `${date.toDateString()} | ${shiftType} | ${nurses}`;
+  const whiteSpaceToAlignCol = new Array(
+    longestShiftType.length - shiftType.length + 1
+  ).join(" ");
+
+  return `${date.toDateString()} | ${
+    shiftType + whiteSpaceToAlignCol
+  } | ${nurses}`;
 };
 
 const formattedRoster = (roster: Shift[]) => {
