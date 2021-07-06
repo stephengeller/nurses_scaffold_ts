@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import moment = require("moment");
 
 export interface Nurse {
   uid: string;
@@ -69,9 +70,17 @@ export class RosterBuilder {
   };
 
   build = (): Shift[] => {
-    // Get list of all nurses
-    // Per day, get 5 nurses * 3 shifts
-    // Output formatted
-    throw "RosterBuilder#build Not Implemented";
+    const start = moment(this.startDate, "YYYY-MM-DD");
+    const end = moment(this.endDate, "YYYY-MM-DD");
+    const days = end.days() - start.days(); // remove +1 if not inclusive of endDate
+    const arrayOfDays: number[] = Array.from(Array(days).keys());
+
+    const arrayOfShifts: Shift[][] = arrayOfDays.map((n) =>
+      this.createDay(start.add(n, "days").toDate())
+    );
+    return flatten(arrayOfShifts);
   };
 }
+
+export const flatten = (arr: any[][]): any[] =>
+  arr.reduce((accumulator, value) => accumulator.concat(value), []);

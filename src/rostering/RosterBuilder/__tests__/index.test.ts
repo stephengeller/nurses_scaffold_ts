@@ -1,4 +1,10 @@
-import { Nurse, RosterBuilder, RosterBuilderArgs, ShiftType } from "../index";
+import {
+  flatten,
+  Nurse,
+  RosterBuilder,
+  RosterBuilderArgs,
+  ShiftType,
+} from "../index";
 describe("RosterBuilder", function () {
   let rosterBuilder: RosterBuilder;
   beforeEach(() => {
@@ -125,6 +131,12 @@ describe("RosterBuilder", function () {
         expect(roster.length > 0).toBeTruthy();
       });
 
+      it("throws error if not enough nurses", () => {
+        expect(() =>
+          rosterBuilderForTesting({ nurses: testNurses(14) }).build()
+        ).toThrowError();
+      });
+
       it("should produce a shift of each shiftType", function () {
         expect(rosterBuilder.build().map((shift) => shift.shiftType)).toEqual([
           "morning",
@@ -139,6 +151,13 @@ describe("RosterBuilder", function () {
           .forEach((shift) => expect(shift.nurses).toHaveLength(5));
       });
     });
+  });
+});
+
+describe("flatten", function () {
+  it("should flatten an array of arrays into one", function () {
+    const arrayOfArrays = [[1], [2], [3]];
+    expect(flatten(arrayOfArrays)).toEqual([1, 2, 3]);
   });
 });
 
