@@ -6,7 +6,7 @@ END=${2}
 FILENAME=${3-"${DIR}/../sample_data/nurses.json"}
 
 if [[ -z $START || -z $END ]]; then
-  echo -e  "If overriding example args, please pass a start and end date\n";
+  echo -e  "Please pass a start and end date\n";
   echo "     $ ${0} <START_DATE> <END_DATE> [filename]";
   echo "e.g. $ ${0} 2020-01-01 2020-02-03";
   exit 1
