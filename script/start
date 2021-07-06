@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+START=${1}
+END=${2}
+FILENAME=${3-"${DIR}/../sample_data/nurses.json"}
 
-yarn start --start-date=2020-01-01 --end-date=2020-06-01 --filename="${DIR}/../sample_data/nurses.json"
+if [[ -z $START || -z $END ]]; then
+  echo -e  "If overriding example args, please pass a start and end date\n";
+  echo "     $ ${0} <START_DATE> <END_DATE> [filename]";
+  echo "e.g. $ ${0} 2020-01-01 2020-02-03";
+  exit 1
+fi
+
+yarn start --start-date="$START" --end-date="$END" --filename="${FILENAME}"
