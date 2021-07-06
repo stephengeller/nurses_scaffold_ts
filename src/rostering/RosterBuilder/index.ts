@@ -42,16 +42,15 @@ export class RosterBuilder {
     this.endDate = endDate
   }
 
-  get nurses(): Nurse[] {
+  get availableNurses(): Nurse[] {
     return this._nurses
   }
+
   get assignedNurses(): Nurse[] {
     return this._assignedNurses
   }
 
-  createShift(
-    shiftType: ShiftType
-  ): {
+  createShift(shiftType: ShiftType): {
     shiftType: ShiftType
     nurses: Nurse[]
   } {
@@ -61,7 +60,7 @@ export class RosterBuilder {
     }
 
     this._assignedNurses = this._assignedNurses.concat(nurses)
-    this._nurses = this.nurses.slice(5, this.nurses.length)
+    this._nurses = this.availableNurses.slice(5, this.availableNurses.length)
     return {shiftType, nurses}
   }
 
@@ -77,21 +76,21 @@ export class RosterBuilder {
     return JSON.parse(contents)
   }
 
-  build = (): Shift[] => {
+  private resetAvailableNurses() {
+    this._nurses = this._nurses.concat(this._assignedNurses)
+    this._assignedNurses = []
+  }
+
+  build(): Shift[] {
     const days = differenceInDays(this.startDate, this.endDate)
     const daysAsArray: number[] = Array.from(Array(days).keys())
 
     const start = moment(this.startDate)
-
     const arrayOfShifts: Shift[][] = daysAsArray.map((n) => {
       this.resetAvailableNurses()
       return this.createDay(start.add(n, 'days').toDate())
     })
-    return flatten(arrayOfShifts)
-  }
 
-  private resetAvailableNurses() {
-    this._nurses = this._nurses.concat(this._assignedNurses)
-    this._assignedNurses = []
+    return flatten(arrayOfShifts)
   }
 }

@@ -12,8 +12,8 @@ const testNurse = (uid: number): Nurse => ({
   name: uid.toString()
 })
 
-const testNurses = (count: number): Nurse[] =>
-  Array.from(Array(count).keys()).map((n) => testNurse(n))
+const testNurses = (count: number, startingId?: number): Nurse[] =>
+  Array.from(Array(count).keys()).map((n) => testNurse((startingId ?? 0) + n))
 
 const rosterBuilderForTesting = (args: Partial<RosterBuilderArgs>) =>
   new RosterBuilder({
@@ -23,14 +23,14 @@ const rosterBuilderForTesting = (args: Partial<RosterBuilderArgs>) =>
     ...args
   })
 
-describe('RosterBuilder', function () {
+describe('RosterBuilder', () => {
   let rosterBuilder: RosterBuilder
   beforeEach(() => {
     rosterBuilder = rosterBuilderForTesting({nurses: testNurses(100)})
   })
 
-  describe('createShift', function () {
-    it('should generate a shift from available nurses', function () {
+  describe('createShift', () => {
+    it('should generate a shift from available nurses', () => {
       const rosterBuilder = rosterBuilderForTesting({
         nurses: testNurses(5)
       })
@@ -39,16 +39,11 @@ describe('RosterBuilder', function () {
 
       expect(shift).toEqual({
         shiftType: ShiftType.Morning,
-        nurses: [
-          {uid: '0', name: '0'},
-          {uid: '1', name: '1'},
-          {uid: '2', name: '2'},
-          {uid: '3', name: '3'},
-          {uid: '4', name: '4'}
-        ]
+        nurses: testNurses(5)
       })
     })
-    it('should throw error if not enough nurses available', function () {
+
+    it('should throw error if there are not at least 5 nurses available', () => {
       const rosterBuilder = rosterBuilderForTesting({nurses: testNurses(3)})
 
       expect(() => rosterBuilder.createShift(ShiftType.Evening)).toThrowError(
@@ -56,7 +51,7 @@ describe('RosterBuilder', function () {
       )
     })
 
-    it('should pick the first available nurses in order', function () {
+    it('should pick the first available nurses in order', () => {
       const rosterBuilder = rosterBuilderForTesting({
         nurses: [
           testNurse(7),
@@ -81,78 +76,58 @@ describe('RosterBuilder', function () {
       })
     })
 
-    it('should remove nurses from the available pool once assigned to a shift', function () {
-      const nurses = [
-        testNurse(1),
-        testNurse(2),
-        testNurse(3),
-        testNurse(4),
-        testNurse(5),
-        testNurse(6),
-        testNurse(7)
-      ]
+    it('should remove nurses from the available pool once assigned to a shift', () => {
+      const nurses = testNurses(7, 1)
 
       const rosterBuilder = rosterBuilderForTesting({nurses})
-      expect(rosterBuilder.nurses).toEqual(nurses)
+      expect(rosterBuilder.availableNurses).toEqual(nurses)
 
       rosterBuilder.createShift(ShiftType.Evening)
 
-      expect(rosterBuilder.nurses).toEqual([testNurse(6), testNurse(7)])
-    })
-
-    it('should add nurses to list of assigned nurses', function () {
-      const nurses = [
-        testNurse(1),
-        testNurse(2),
-        testNurse(3),
-        testNurse(4),
-        testNurse(5),
+      expect(rosterBuilder.availableNurses).toEqual([
         testNurse(6),
         testNurse(7)
-      ]
+      ])
+    })
+
+    it('should add nurses to list of assigned nurses', () => {
+      const nurses = testNurses(7, 1)
 
       const rosterBuilder = rosterBuilderForTesting({nurses})
-      expect(rosterBuilder.nurses).toEqual(nurses)
+      expect(rosterBuilder.availableNurses).toEqual(nurses)
       expect(rosterBuilder.assignedNurses).toEqual([])
 
       rosterBuilder.createShift(ShiftType.Evening)
 
-      expect(rosterBuilder.nurses).toEqual([testNurse(6), testNurse(7)])
-      expect(rosterBuilder.assignedNurses).toEqual([
-        testNurse(1),
-        testNurse(2),
-        testNurse(3),
-        testNurse(4),
-        testNurse(5)
-      ])
+      expect(rosterBuilder.assignedNurses).toEqual(testNurses(5, 1))
     })
   })
 
-  describe('createDay', function () {
-    it('should produce 3 shifts', function () {
+  describe('createDay', () => {
+    it('should produce 3 shifts', () => {
       const day = rosterBuilder.createDay(new Date())
       expect(day).toHaveLength(3)
     })
 
-    it('should have one of each shift type', function () {
+    it('should have one of each shift type', () => {
       const day = rosterBuilder.createDay(new Date())
       const shiftTypes = day.map((d) => d.shiftType)
       expect(new Set(shiftTypes).size).toEqual(day.length)
     })
 
-    it('should produce a list of 5 nurses for each type of shift', function () {
+    it('should produce a list of 5 nurses for each type of shift', () => {
       const day = rosterBuilder.createDay(new Date())
       day.forEach((shift) => expect(shift.nurses).toHaveLength(5))
     })
 
-    it('should throw error if not enough nurses to fill a day of shifts', function () {
+    it('should throw error if not enough nurses to fill a day of shifts', () => {
       rosterBuilder = rosterBuilderForTesting({nurses: testNurses(13)})
       expect(() => rosterBuilder.createDay(new Date())).toThrowError(
         `Not enough nurses to fill shift (3 nurses available)`
       )
     })
 
-    it('should have no nurses working twice in a day', function () {
+    it('should have no nurses working twice in a day', () => {
       const day = rosterBuilder.createDay(new Date())
       day.forEach((shift) =>
         shift.nurses.some((nurse) =>
@@ -162,8 +137,8 @@ describe('RosterBuilder', function () {
     })
   })
 
-  describe('build', function () {
-    describe('for one day', function () {
+  describe('build', () => {
+    describe('for one day', () => {
       beforeEach(() => {
         rosterBuilder = rosterBuilderForTesting({
           startDate: new Date('2001-01-01'),
@@ -182,7 +157,7 @@ describe('RosterBuilder', function () {
         ).toThrowError()
       })
 
-      it('should produce a shift of each shiftType', function () {
+      it('should produce a shift of each shiftType', () => {
         expect(rosterBuilder.build().map((shift) => shift.shiftType)).toEqual([
           'morning',
           'evening',
@@ -190,15 +165,15 @@ describe('RosterBuilder', function () {
         ])
       })
 
-      it('should contain 5 nurses per shift', function () {
+      it('should contain 5 nurses per shift', () => {
         rosterBuilder
           .build()
           .forEach((shift) => expect(shift.nurses).toHaveLength(5))
       })
     })
 
-    describe('for multiple days', function () {
-      it('should produce 3 different types of shift per day', function () {
+    describe('for multiple days', () => {
+      it('should produce 3 different types of shift per day', () => {
         rosterBuilder = rosterBuilderForTesting({
           startDate: new Date('2001-01-01'),
           endDate: new Date('2001-01-03') // 2 days
@@ -227,7 +202,7 @@ describe('RosterBuilder', function () {
         ])
       })
 
-      it('can have the same nurses on shifts over multiple days', function () {
+      it('can have the same nurses on shifts over multiple days', () => {
         rosterBuilder = rosterBuilderForTesting({
           nurses: testNurses(15), // Each nurse should work once a day, since 3 shifts * 5 nurses per shift
           startDate: new Date('2001-01-01'),
@@ -240,78 +215,43 @@ describe('RosterBuilder', function () {
           {
             shiftType: ShiftType.Morning,
             date: new Date('2001-01-01'),
-            nurses: [
-              testNurse(0),
-              testNurse(1),
-              testNurse(2),
-              testNurse(3),
-              testNurse(4)
-            ]
+            nurses: testNurses(5, 0)
           },
           {
             shiftType: ShiftType.Evening,
             date: new Date('2001-01-01'),
-            nurses: [
-              testNurse(5),
-              testNurse(6),
-              testNurse(7),
-              testNurse(8),
-              testNurse(9)
-            ]
+            nurses: testNurses(5, 5)
           },
           {
             shiftType: ShiftType.Night,
             date: new Date('2001-01-01'),
-            nurses: [
-              testNurse(10),
-              testNurse(11),
-              testNurse(12),
-              testNurse(13),
-              testNurse(14)
-            ]
+            nurses: testNurses(5, 10)
           },
           {
             shiftType: ShiftType.Morning,
             date: new Date('2001-01-02'),
-            nurses: [
-              testNurse(0),
-              testNurse(1),
-              testNurse(2),
-              testNurse(3),
-              testNurse(4)
-            ]
+            nurses: testNurses(5, 0)
           },
           {
             shiftType: ShiftType.Evening,
             date: new Date('2001-01-02'),
-            nurses: [
-              testNurse(5),
-              testNurse(6),
-              testNurse(7),
-              testNurse(8),
-              testNurse(9)
-            ]
+            nurses: testNurses(5, 5)
           },
           {
             shiftType: ShiftType.Night,
             date: new Date('2001-01-02'),
-            nurses: [
-              testNurse(10),
-              testNurse(11),
-              testNurse(12),
-              testNurse(13),
-              testNurse(14)
-            ]
+            nurses: testNurses(5, 10)
           }
         ]
 
         expect(roster).toEqual(expected)
       })
 
-      it('should persist nurse ordering over multiple days', function () {
+      it('should persist nurse ordering over multiple days', () => {
         rosterBuilder = rosterBuilderForTesting({
           // This is more than the 3 shifts * 5 people, so the roster should
-          // use the remaining nurses (16 and 17) before rolling over to the first ones
+          // use the remaining nurses (16 and 17) on the second day
+          // before rolling over to the first ones
           nurses: testNurses(17),
           startDate: new Date('2001-01-01'),
           endDate: new Date('2001-01-03')
@@ -323,35 +263,17 @@ describe('RosterBuilder', function () {
           {
             shiftType: ShiftType.Morning,
             date: new Date('2001-01-01'),
-            nurses: [
-              testNurse(0),
-              testNurse(1),
-              testNurse(2),
-              testNurse(3),
-              testNurse(4)
-            ]
+            nurses: testNurses(5, 0)
           },
           {
             shiftType: ShiftType.Evening,
             date: new Date('2001-01-01'),
-            nurses: [
-              testNurse(5),
-              testNurse(6),
-              testNurse(7),
-              testNurse(8),
-              testNurse(9)
-            ]
+            nurses: testNurses(5, 5)
           },
           {
             shiftType: ShiftType.Night,
             date: new Date('2001-01-01'),
-            nurses: [
-              testNurse(10),
-              testNurse(11),
-              testNurse(12),
-              testNurse(13),
-              testNurse(14)
-            ]
+            nurses: testNurses(5, 10)
           },
           {
             shiftType: ShiftType.Morning,
@@ -367,31 +289,19 @@ describe('RosterBuilder', function () {
           {
             shiftType: ShiftType.Evening,
             date: new Date('2001-01-02'),
-            nurses: [
-              testNurse(3),
-              testNurse(4),
-              testNurse(5),
-              testNurse(6),
-              testNurse(7)
-            ]
+            nurses: testNurses(5, 3)
           },
           {
             shiftType: ShiftType.Night,
             date: new Date('2001-01-02'),
-            nurses: [
-              testNurse(8),
-              testNurse(9),
-              testNurse(10),
-              testNurse(11),
-              testNurse(12)
-            ]
+            nurses: testNurses(5, 8)
           }
         ]
 
         expect(roster).toEqual(expected)
       })
 
-      it('should generate the appropriate number of shifts over longer periods', function () {
+      it('should generate the appropriate number of shifts over longer periods', () => {
         const startDate = new Date('2001-01-01')
         const endDate = new Date('2001-03-01')
 
@@ -401,8 +311,11 @@ describe('RosterBuilder', function () {
           endDate
         })
 
+        // 3 shifts per day
+        const expectedNumberOfShifts = differenceInDays(startDate, endDate) * 3
+
         const roster = rosterBuilder.build()
-        expect(roster).toHaveLength(differenceInDays(startDate, endDate) * 3)
+        expect(roster).toHaveLength(expectedNumberOfShifts)
       })
     })
   })
