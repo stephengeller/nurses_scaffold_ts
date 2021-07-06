@@ -14,7 +14,7 @@ $ ./script/setup
 
 ## To Run
 
-To try the implementation, you can run `script/start` with optional arguments:
+To try the implementation and see a sample output, you can run `script/start` with optional arguments:
 
 ```bash
 $ ./script/start # runs with default arguments stated within the script
@@ -24,8 +24,11 @@ $ ./script/start 2021-01-05 2021-03-05
 
 ## To Test
 
+Run `./script/test` to see the tests pass or fail. You can additionally add the `--coverage` flag to see test coverage, which is at 100% at time of submission.
+
 ```bash
 $ ./script/test
+$ ./script/test --coverage # To see coverage 
 ```
 
 ## Context
