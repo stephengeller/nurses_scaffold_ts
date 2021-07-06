@@ -1,11 +1,10 @@
 import { Nurse, RosterBuilder, RosterBuilderArgs, ShiftType } from "../index";
-
-it("builds a roster from available nurse list", () => {
-  expect(RosterBuilder).toBeDefined();
-  expect("You should write some tests for the RosterBuilder.").toHaveLength(50);
-});
-
 describe("RosterBuilder", function () {
+  let rosterBuilder: RosterBuilder;
+  beforeEach(() => {
+    rosterBuilder = rosterBuilderForTesting({ nurses: testNurses(100) });
+  });
+
   describe("createShift", function () {
     it("should generate a shift from available nurses", function () {
       const rosterBuilder = rosterBuilderForTesting({
@@ -79,11 +78,6 @@ describe("RosterBuilder", function () {
   });
 
   describe("createDay", function () {
-    let rosterBuilder: RosterBuilder;
-    beforeEach(() => {
-      rosterBuilder = rosterBuilderForTesting({ nurses: testNurses(100) });
-    });
-
     it("should produce 3 shifts", function () {
       const day = rosterBuilder.createDay(new Date());
       expect(day).toHaveLength(3);
@@ -114,6 +108,36 @@ describe("RosterBuilder", function () {
           day.forEach((shift) => shift.nurses.includes(nurse))
         )
       );
+    });
+  });
+
+  describe("build", function () {
+    describe("for one day", function () {
+      beforeEach(() => {
+        return (rosterBuilder = rosterBuilderForTesting({
+          startDate: "2001-01-01",
+          endDate: "2001-01-02",
+        }));
+      });
+
+      it("builds a roster from available nurse list", () => {
+        const roster = rosterBuilder.build();
+        expect(roster.length > 0).toBeTruthy();
+      });
+
+      it("should produce a shift of each shiftType", function () {
+        expect(rosterBuilder.build().map((shift) => shift.shiftType)).toEqual([
+          "morning",
+          "evening",
+          "night",
+        ]);
+      });
+
+      it("should contain 5 nurses per shift", function () {
+        rosterBuilder
+          .build()
+          .forEach((shift) => expect(shift.nurses).toHaveLength(5));
+      });
     });
   });
 });
