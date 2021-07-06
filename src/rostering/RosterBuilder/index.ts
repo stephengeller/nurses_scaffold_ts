@@ -26,6 +26,8 @@ export interface RosterBuilderArgs {
   endDate: Date
 }
 
+export const NURSES_PER_SHIFT = 5
+
 export class RosterBuilder {
   private _nurses: Nurse[]
   private _assignedNurses: Nurse[]
@@ -51,8 +53,8 @@ export class RosterBuilder {
     shiftType: ShiftType
     nurses: Nurse[]
   } {
-    const nurses = this._nurses.slice(0, 5)
-    if (nurses.length < 5) {
+    const nurses = this._nurses.slice(0, NURSES_PER_SHIFT)
+    if (nurses.length < NURSES_PER_SHIFT) {
       throw `Not enough nurses to fill shift (${nurses.length} nurses available)`
     }
 
@@ -86,7 +88,7 @@ export class RosterBuilder {
     const arrayOfShifts: Shift[][] = daysAsArray.map(() => {
       this.resetAvailableNurses()
       const day = this.createDay(start.toDate())
-      // `start` is stateful, so we need to add one day to the counter after we create the day
+      // `start` is stateful, so we need to add one day to the counter _after_ we create the day
       start.add(1, 'days').toDate()
       return day
     })
