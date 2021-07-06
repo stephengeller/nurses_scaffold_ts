@@ -12,4 +12,4 @@ if [[ -z $START || -z $END ]]; then
   exit 1
 fi
 
-yarn start --start-date="$START" --end-date="$END" --filename="${FILENAME}"
+npm start -- --start-date="$START" --end-date="$END" --filename="${FILENAME}"

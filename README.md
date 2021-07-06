@@ -1,5 +1,35 @@
 # Nurse Rostering
 
+## My Approach
+
+Please see [my approach](./docs/approach.md) for details on how I went about completing this challenge.
+
+## To Setup
+
+Install all the dependencies via NPM: 
+
+```bash
+$ ./script/setup
+```
+
+## To Run
+
+To try the implementation, you can run `script/start` with optional arguments:
+
+```bash
+$ ./script/start # runs with default arguments stated within the script
+$ ./script/start <START_DATE> <END_DATE>
+$ ./script/start 2021-01-05 2021-03-05
+```
+
+## To Test
+
+```bash
+$ ./script/test
+```
+
+## Context
+
 You just started work for a startup that sells medical rostering software. They’ve just landed a new client, a major hospital, and everyone’s excited! However, the HR policies at the hospital are too complex for the software to handle.
 
 At the hospital nurses work a rotating shift system. There are three work shifts per day; a morning shift, an evening shift and a night shift. Each day, all three shifts need to be filled.
