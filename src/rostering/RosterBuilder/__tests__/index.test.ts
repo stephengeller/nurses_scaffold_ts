@@ -5,7 +5,7 @@ import {
   Shift,
   ShiftType
 } from '../index'
-import {differenceInDays} from '../../../utils/utils'
+import {differenceInDays, flatten} from '../../../utils/utils'
 
 const testNurse = (uid: number): Nurse => ({
   uid: uid.toString(),
@@ -15,7 +15,7 @@ const testNurse = (uid: number): Nurse => ({
 const testNurses = (count: number, startingId?: number): Nurse[] =>
   Array.from(Array(count).keys()).map((n) => testNurse((startingId ?? 0) + n))
 
-const rosterBuilderForTesting = (args: Partial<RosterBuilderArgs>) =>
+const rosterBuilderForTesting = (args?: Partial<RosterBuilderArgs>) =>
   new RosterBuilder({
     startDate: new Date('2001-01-01'),
     endDate: new Date('2001-01-01'),
@@ -25,9 +25,7 @@ const rosterBuilderForTesting = (args: Partial<RosterBuilderArgs>) =>
 
 describe('RosterBuilder', () => {
   let rosterBuilder: RosterBuilder
-  beforeEach(() => {
-    rosterBuilder = rosterBuilderForTesting({nurses: testNurses(100)})
-  })
+  beforeEach(() => (rosterBuilder = rosterBuilderForTesting()))
 
   describe('createShift', () => {
     it('should generate a shift from available nurses', () => {
@@ -41,6 +39,17 @@ describe('RosterBuilder', () => {
         shiftType: ShiftType.Morning,
         nurses: testNurses(5)
       })
+    })
+
+    it('nurses should be unique from each other', () => {
+      const rosterBuilder = rosterBuilderForTesting({
+        nurses: testNurses(5)
+      })
+
+      const shift = rosterBuilder.createShift(ShiftType.Morning)
+      // Sets rely on primitive values to remove duplicates
+      const uniqueIds = new Set(shift.nurses.map(({uid}) => uid))
+      expect(uniqueIds.size).toEqual(shift.nurses.length)
     })
 
     it('should throw error if there are not at least 5 nurses available', () => {
@@ -129,11 +138,14 @@ describe('RosterBuilder', () => {
 
     it('should have no nurses working twice in a day', () => {
       const day = rosterBuilder.createDay(new Date())
-      day.forEach((shift) =>
-        shift.nurses.some((nurse) =>
-          day.forEach((shift) => shift.nurses.includes(nurse))
-        )
-      )
+      const flattened: Nurse[] = flatten(day.map(({nurses}) => nurses))
+
+      // This test relies on the `uid` value always being unique,
+      // as Sets only check for unique values for primitive types
+      // and so doesn't produce a list of unique objects if passed
+      // the original `Nurse` object
+      const uniqueUids = new Set(flattened.map(({uid}) => uid))
+      expect(uniqueUids.size).toEqual(flattened.length)
     })
   })
 
@@ -158,11 +170,9 @@ describe('RosterBuilder', () => {
       })
 
       it('should produce a shift of each shiftType', () => {
-        expect(rosterBuilder.build().map((shift) => shift.shiftType)).toEqual([
-          'morning',
-          'evening',
-          'night'
-        ])
+        expect(rosterBuilder.build().map((shift) => shift.shiftType)).toEqual(
+          Object.values(ShiftType)
+        )
       })
 
       it('should contain 5 nurses per shift', () => {
